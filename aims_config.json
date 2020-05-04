@@ -1,0 +1,14 @@
+{
+    "azure": {
+        "connectionString": "Endpoint=sb://",
+        "eventHubName": "your eventhub name",
+        "consumerGroup": "your eventhub consumergroup",
+        "storageConnectionString": "DefaultEndpointsProtocol=https;AccountName= ",
+        "containerName": "your container name"
+    },
+    "aimsConnection": {
+        "environmentId": "your AIMS environment ID",
+        "xSystem": 1, 
+        "authToken": "your AIMS auth token"
+    }
+}

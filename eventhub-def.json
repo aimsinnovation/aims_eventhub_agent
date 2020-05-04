@@ -1,0 +1,68 @@
+{
+  "id": "aims.eventhub",
+  "majorVersion": 1,
+  "minorVersion": 0,
+  "name": "Azure EventHub",
+  "metadata": {
+    "nodeTypes": [ {
+        "name": "aims.eventhub.stats",
+        "displayName": "EventHubs",
+        "eventTypes": [ "aims.eventhub.eventhub-events" ],
+        "propertyTypes": [ "aims.eventhub.type" ],
+        "statTypes": [ "aims.eventhub.logins", "aims.eventhub.audits", "aims.eventhub.security", "aims.eventhub.admin" ],
+        "statuses": [ "aims.eventhub.unavailable" ]
+    }
+     ],
+    "nodePropertyTypes": [ {
+        "name": "aims.eventhub.type",
+        "displayName": "EventHub"
+    } ],
+    "nodeStatuses": [ {
+        "name": "aims.eventhub.unavailable",
+        "displayName": "unavailable",
+        "type": "stopped"
+    } ],
+    "eventTypes": [ {
+        "name": "aims.eventhub.eventhub-events",
+        "displayName": "Azure EventHub Events"
+    } ],
+    "statTypeGroups": [ {
+        "name": "aims.eventhub.stats",
+        "displayName": "Azure EventHub Statistics"
+    } ],
+    "statTypes": [ 
+    {
+        "name": "aims.eventhub.logins",
+        "displayName": "AD SignIns",
+        "group": "aims.eventhub.stats",
+        "aggregation": "sum",
+        "nodeAggregation": "sum",
+        "unitType": "quantity"
+    },
+    {
+        "name": "aims.eventhub.audits",
+        "displayName": "AD Audits",
+        "group": "aims.eventhub.stats",
+        "aggregation": "sum",
+        "nodeAggregation": "sum",
+        "unitType": "quantity"
+    },
+        {
+        "name": "aims.eventhub.security",
+        "displayName": "Security Events",
+        "group": "aims.eventhub.stats",
+        "aggregation": "sum",
+        "nodeAggregation": "sum",
+        "unitType": "quantity"
+    },
+            {
+        "name": "aims.eventhub.admin",
+        "displayName": "Admin Events",
+        "group": "aims.eventhub.stats",
+        "aggregation": "sum",
+        "nodeAggregation": "sum",
+        "unitType": "quantity"
+    }
+]
+  }
+  }
