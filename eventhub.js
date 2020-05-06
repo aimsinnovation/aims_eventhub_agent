@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env node 
 const { EventHubConsumerClient } = require("@azure/event-hubs");
 const { ContainerClient } = require("@azure/storage-blob");    
 const { BlobCheckpointStore } = require("@azure/eventhubs-checkpointstore-blob");
@@ -21,7 +21,7 @@ var unirest = require('unirest');
 
 //Sends events to AIMS
 function sendJSON (jsonString) {
-  var req1 = unirest('POST', 'https://api.aimsinnovation.com/api/environments/' + config.aimsConnection.environmentId + '/events/')
+  var req1 = unirest('POST', 'https://api.aimsinnovation.com/api/environments/' + config.aimsConnection.environmentId + '/events/') //AIMS events API
     .headers({
       'Content-Type': 'application/json',
       'X-System': config.aimsConnection.xSystem,
@@ -38,12 +38,13 @@ function sendStats () {
   var todayDate = new Date().toISOString();
   todayDate = todayDate.substring(0, todayDate.indexOf('.')) + 'Z';
 
+  //create JSON with stats for events
   if (securityTime.length > 1) {
     var statsJSON = '[{"nodeRef": {"nodeType": "aims.eventhub.stats","parts": {"part1": "' + config.azure.eventHubName + '"}},"statType": "aims.eventhub.logins","time":"' + todayDate + '","value": ' + signInCounter + '},{"nodeRef": {"nodeType": "aims.eventhub.stats","parts": {"part1": "' + config.azure.eventHubName + '"}},"statType": "aims.eventhub.audits","time": "' + todayDate + '","value": ' + auditCounter + '},{"nodeRef": {"nodeType": "aims.eventhub.stats","parts": {"part1": "' + config.azure.eventHubName + '"}},"statType": "aims.eventhub.security","time": "' + securityTime + '","value": ' + securityCounter + '},{"nodeRef": {"nodeType": "aims.eventhub.stats","parts": {"part1": "' + config.azure.eventHubName + '"}},"statType": "aims.eventhub.admin","time":"' + todayDate + '","value": ' + adminCounter + '}]';
   } else {
     var statsJSON = '[{"nodeRef": {"nodeType": "aims.eventhub.stats","parts": {"part1": "' + config.azure.eventHubName + '"}},"statType": "aims.eventhub.logins","time":"' + todayDate + '","value": ' + signInCounter + '},{"nodeRef": {"nodeType": "aims.eventhub.stats","parts": {"part1": "' + config.azure.eventHubName + '"}},"statType": "aims.eventhub.audits","time": "' + todayDate + '","value": ' + auditCounter + '},{"nodeRef": {"nodeType": "aims.eventhub.stats","parts": {"part1": "' + config.azure.eventHubName + '"}},"statType": "aims.eventhub.security","time": "' + todayDate + '","value": ' + securityCounter + '},{"nodeRef": {"nodeType": "aims.eventhub.stats","parts": {"part1": "' + config.azure.eventHubName + '"}},"statType": "aims.eventhub.admin","time":"' + todayDate + '","value": ' + adminCounter + '}]';    
   }
-  var req2 = unirest('POST', 'https://api.aimsinnovation.com/api/environments/' + config.aimsConnection.environmentId + '/statpoints/')
+  var req2 = unirest('POST', 'https://api.aimsinnovation.com/api/environments/' + config.aimsConnection.environmentId + '/statpoints/') //AIMS statistics API
     .headers({
       'Content-Type': 'application/json',
       'X-System': config.aimsConnection.xSystem,
@@ -61,14 +62,14 @@ function sendStats () {
 }
 
 async function main() {
-  // Create a blob container client and a blob checkpoint store using the client.
+  // Create a blob container client and a blob checkpoint
   const containerClient = new ContainerClient(storageConnectionString, containerName);
     const checkpointStore = new BlobCheckpointStore(containerClient);
 
   // Create a consumer client for the event hub by specifying the checkpoint store.
   const consumerClient = new EventHubConsumerClient(consumerGroup, connectionString, eventHubName, checkpointStore);
 
-  // Subscribe to the events, and specify handlers for processing the events and errors.
+  // Subscribe to the events from the Event Hub
   aims_json = "";
   const subscription = consumerClient.subscribe({
       processEvents: async (events, context) => {
@@ -81,6 +82,7 @@ async function main() {
             time =time.substring(0, time.indexOf('.')) + 'Z';
           }
 
+          //check for SignIn events from Azure AD
           if (category == 'SignInLogs') {
             resultType = JSON.stringify(event.body.records[0].resultType);
             resultType = resultType.replace(/"/gi, '');
@@ -113,7 +115,7 @@ async function main() {
             aims_json = aims_json + '{"eventType": "aims.eventhub.eventhub-events","level": "info","message": "' + temp + '","nodes": [{"nodeType": "aims.eventhub.stats","parts": {"part1": "' + config.azure.eventHubName + '"}}],"startTime": "' + time + '","endTime": null,"data": {}},';
             signInCounter = signInCounter + 1;
 
-          
+            //check for Security events from Azure Monitor
            } else if (category == 'Security') {
             securityTime = JSON.stringify(event.body.records[0].time);
             securityTime = securityTime.replace(/"/gi, '');
@@ -135,6 +137,7 @@ async function main() {
             aims_json = aims_json + '{"eventType": "aims.eventhub.eventhub-events","level": "info","message": "' + temp + '","nodes": [{"nodeType": "aims.eventhub.stats","parts": {"part1": "' + config.azure.eventHubName + '"}}],"startTime": "' + time + '","endTime": null,"data": {}},';
             securityCounter = securityCounter + 1;
 
+            //check for Audit events from Azure AD
           }  else if (category == 'AuditLogs') {
             operationName = JSON.stringify(event.body.records[0].operationName);
             operationName = operationName.replace(/"/gi, '');
@@ -151,6 +154,7 @@ async function main() {
             aims_json = aims_json + '{"eventType": "aims.eventhub.eventhub-events","level": "info","message": "' + temp + '","nodes": [{"nodeType": "aims.eventhub.stats","parts": {"part1": "' + config.azure.eventHubName + '"}}],"startTime": "' + time + '","endTime": null,"data": {}},';
             auditCounter = auditCounter + 1;
 
+            //check for Administrative events from Azure Monitor
           } else if (category == 'Administrative') {
             objectLength = event.body.records.length - 1;
             resultType = JSON.stringify(event.body.records[objectLength].resultType);
@@ -197,6 +201,7 @@ async function main() {
     }, 30000);
   });
 
+  //check if any events and send to AIMS
   if (aims_json.length > 1) {
     aims_json = aims_json.replace(/,\s*$/, "");
     aims_json = '[' + aims_json + ']';

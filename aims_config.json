@@ -3,7 +3,7 @@
         "connectionString": "Endpoint=sb://",
         "eventHubName": "your eventhub name",
         "consumerGroup": "your eventhub consumergroup",
-        "storageConnectionString": "DefaultEndpointsProtocol=https;AccountName= ",
+        "storageConnectionString": "DefaultEndpointsProtocol=https;AccountName=  ",
         "containerName": "your container name"
     },
     "aimsConnection": {
